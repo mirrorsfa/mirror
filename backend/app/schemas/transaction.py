@@ -15,6 +15,7 @@ class TransactionBase(BaseModel):
     transaction_type: TransactionType
     category: str = Field(min_length=1, max_length=50)
     account: str = Field(min_length=1, max_length=50)
+    account_id: str | None = None
     amount: Decimal = Field(gt=0, max_digits=12, decimal_places=2)
     occurred_at: datetime
     icon: str = Field(default="🧾", max_length=16)
@@ -30,6 +31,7 @@ class TransactionUpdate(BaseModel):
     transaction_type: TransactionType | None = None
     category: str | None = Field(default=None, min_length=1, max_length=50)
     account: str | None = Field(default=None, min_length=1, max_length=50)
+    account_id: str | None = None
     amount: Decimal | None = Field(default=None, gt=0, max_digits=12, decimal_places=2)
     occurred_at: datetime | None = None
     icon: str | None = Field(default=None, max_length=16)

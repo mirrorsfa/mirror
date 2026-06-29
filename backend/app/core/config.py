@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///backend/data/ledger.db"
     cors_origins: str = "http://localhost:8080,http://127.0.0.1:8080"
     debug: bool = False
+    jwt_secret_key: str = "development-only-change-me-before-production"
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 60 * 24 * 7
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -71,7 +71,9 @@ try {
   const remoteStorage = createMemoryStorage();
   const gatewayCalls = [];
   const gateway = {
+    hasToken: () => true,
     health: async () => ({ status: 'ok' }),
+    me: async () => ({ id: 'user-1', email: 'test@example.com', display_name: '测试用户' }),
     listTransactions: async year => {
       gatewayCalls.push(['list', year]);
       return [{
@@ -83,6 +85,7 @@ try {
       gatewayCalls.push(['getBudget', period]);
       return 2000;
     },
+    listAccounts: async () => [],
     createTransaction: async item => ({ ...item, id: 'remote-2' }),
     updateTransaction: async (id, item) => ({ ...item, id }),
     removeTransaction: async id => gatewayCalls.push(['remove', id]),
@@ -99,6 +102,7 @@ try {
   });
   await remoteStore.initialize();
   assert('连接成功后切换为云端数据源', remoteStore.getState().dataSource === 'remote');
+  assert('初始化会恢复当前登录用户', remoteStore.getState().user.id === 'user-1');
   assert('初始化会从后端加载年度流水', remoteStore.getState().transactions[0].id === 'remote-1');
   assert('初始化会同步当前月预算', getBudgetStatus(remoteStore.getState()).budget === 2000);
 

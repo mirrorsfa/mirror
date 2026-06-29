@@ -29,6 +29,18 @@ def client():
     app.dependency_overrides[get_db] = override_get_db
 
     with TestClient(app) as test_client:
+        response = test_client.post(
+            "/api/v1/auth/register",
+            json={
+                "email": "tester@example.com",
+                "password": "test-password-123",
+                "display_name": "测试用户",
+            },
+        )
+        assert response.status_code == 201
+        test_client.headers.update(
+            {"Authorization": f"Bearer {response.json()['access_token']}"}
+        )
         yield test_client
 
     Base.metadata.drop_all(bind=engine)

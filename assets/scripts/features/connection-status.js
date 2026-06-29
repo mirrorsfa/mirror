@@ -8,6 +8,12 @@ export function createConnectionStatus() {
       element.textContent = '正在同步…';
       return;
     }
+    if (state.dataSource === 'auth-required') {
+      element.classList.add('offline');
+      element.textContent = '请先登录';
+      element.title = '登录后使用云端账本';
+      return;
+    }
     if (state.dataSource === 'remote' && !state.error) {
       element.classList.add('online');
       element.textContent = '云端已同步';

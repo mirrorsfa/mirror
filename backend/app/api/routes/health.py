@@ -11,7 +11,7 @@ router = APIRouter(tags=["system"])
 def health_check(session: DatabaseSession) -> dict[str, str]:
     session.execute(text("SELECT 1"))
     inspector = inspect(session.get_bind())
-    required_tables = {"transactions", "budgets"}
+    required_tables = {"transactions", "budgets", "users", "accounts"}
     if not required_tables.issubset(inspector.get_table_names()):
         raise HTTPException(
             status_code=503,

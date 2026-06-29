@@ -45,9 +45,9 @@
       </div>
 
       <div class="profile">
-        <div class="avatar">林</div>
-        <div><strong>林小满</strong><small>自在生活家</small></div>
-        <button class="icon-button" aria-label="打开个人设置">•••</button>
+        <div class="avatar" id="profileAvatar">林</div>
+        <div><strong id="profileName">林小满</strong><small id="profileEmail">自在生活家</small></div>
+        <button class="icon-button" id="logoutButton" aria-label="退出登录" title="退出登录">↪</button>
       </div>
     </aside>
 
@@ -67,6 +67,7 @@
         </div>
       </header>
 
+      <div class="page-view" id="overviewView">
       <section class="month-switcher" aria-label="月份切换">
         <button class="round-button" id="prevMonth" aria-label="上个月">‹</button>
         <button class="month-label" id="monthLabel">2026年 6月 <span>⌄</span></button>
@@ -160,6 +161,41 @@
           <div class="budget-tip"><span>💡</span><p><strong id="budgetTipTitle">小建议</strong><span id="budgetTipText">预算情况会随每一笔记录实时更新。</span></p></div>
         </article>
       </section>
+      </div>
+
+      <section class="page-view standalone-page" id="reports" hidden>
+        <div class="page-title-row">
+          <div><p class="eyebrow">REPORTS</p><h2>收支统计</h2><span id="reportYearLabel">2026 年度财务全景</span></div>
+        </div>
+        <div class="report-summary-grid">
+          <article><span>年度收入</span><strong id="reportIncome">¥ 0.00</strong><small>所有收入合计</small></article>
+          <article><span>年度支出</span><strong id="reportExpense">¥ 0.00</strong><small>所有支出合计</small></article>
+          <article class="accent"><span>年度结余</span><strong id="reportBalance">¥ 0.00</strong><small id="savingsRate">储蓄率 0%</small></article>
+        </div>
+        <div class="report-grid">
+          <article class="panel annual-trend-panel">
+            <div class="panel-header"><div><h2>月度收支</h2><p>比较每个月的收入与支出</p></div></div>
+            <div class="legend"><span><i class="income-dot"></i>收入</span><span><i class="expense-dot"></i>支出</span></div>
+            <div class="annual-chart" id="annualChart"></div>
+          </article>
+          <article class="panel report-category-panel">
+            <div class="panel-header"><div><h2>年度支出排行</h2><p>找到最值得关注的消费方向</p></div></div>
+            <div class="report-category-list" id="reportCategoryList"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page-view standalone-page" id="accounts" hidden>
+        <div class="page-title-row">
+          <div><p class="eyebrow">ACCOUNTS</p><h2>我的账户</h2><span>管理资金所在的位置，余额由流水自动更新</span></div>
+          <button class="primary-button" id="addAccount"><svg><use href="#i-plus"/></svg>添加账户</button>
+        </div>
+        <div class="accounts-overview">
+          <span>账户总资产</span><strong id="totalAssets">¥ 0.00</strong><small id="accountCount">共 0 个账户</small>
+        </div>
+        <div class="account-grid" id="accountGrid"></div>
+        <div class="empty-state" id="accountEmpty" hidden>还没有账户，添加一个开始管理资金。</div>
+      </section>
     </main>
 
     <nav class="mobile-nav" aria-label="移动端导航">
@@ -189,11 +225,31 @@
       <label class="note-field"><span>备注</span><input id="noteInput" maxlength="30" placeholder="这笔钱花在了……"></label>
       <div class="form-row">
         <label class="compact-field"><span>日期</span><input id="dateInput" type="date" required></label>
-        <label class="compact-field"><span>账户</span><select id="accountInput"><option>微信支付</option><option>支付宝</option><option>招商银行</option><option>现金</option></select></label>
+        <label class="compact-field"><span>账户</span><select id="accountInput"></select></label>
       </div>
       <div class="dialog-actions">
         <button class="delete-button" id="deleteTransaction" type="button" hidden>删除这笔</button>
         <button class="save-button" id="saveTransaction" type="submit">保存记录</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="transaction-dialog account-dialog" id="accountDialog">
+    <form id="accountForm">
+      <div class="dialog-header">
+        <div><span>ACCOUNT</span><h2 id="accountDialogTitle">添加账户</h2></div>
+        <button class="icon-button close-account-dialog" type="button" aria-label="关闭"><svg><use href="#i-close"/></svg></button>
+      </div>
+      <label class="auth-field"><span>账户名称</span><input id="accountNameInput" maxlength="50" required placeholder="例如：工资卡"></label>
+      <div class="form-row">
+        <label class="compact-field"><span>账户类型</span><select id="accountTypeInput"><option value="wechat">微信</option><option value="alipay">支付宝</option><option value="bank">银行卡</option><option value="cash">现金</option><option value="other">其他</option></select></label>
+        <label class="compact-field"><span>初始余额</span><input id="openingBalanceInput" type="number" step="0.01" value="0"></label>
+      </div>
+      <label class="auth-field"><span>账户颜色</span><input id="accountColorInput" type="color" value="#2f6658"></label>
+      <p class="auth-error" id="accountError" hidden></p>
+      <div class="dialog-actions">
+        <button class="delete-button" id="deleteAccount" type="button" hidden>删除账户</button>
+        <button class="save-button" id="saveAccount" type="submit">保存账户</button>
       </div>
     </form>
   </dialog>
@@ -206,6 +262,30 @@
       </div>
       <label class="amount-field"><span>预算金额</span><div><b>¥</b><input id="budgetInput" inputmode="decimal" placeholder="10000" required></div></label>
       <button class="save-button" type="submit">保存预算</button>
+    </form>
+  </dialog>
+
+  <dialog class="auth-dialog" id="authDialog">
+    <form id="authForm">
+      <div class="auth-brand">
+        <span class="brand-mark"><span></span><span></span><span></span></span>
+        <div><strong>今日记账</strong><small>让每一笔都有归处</small></div>
+      </div>
+      <div class="auth-heading">
+        <span>WELCOME BACK</span>
+        <h2 id="authTitle">登录你的账本</h2>
+        <p id="authSubtitle">数据会安全地保存在你的专属账户中</p>
+      </div>
+      <div class="type-switch auth-switch">
+        <button type="button" class="active" data-auth-mode="login">登录</button>
+        <button type="button" data-auth-mode="register">注册</button>
+      </div>
+      <label class="auth-field" id="displayNameField" hidden><span>昵称</span><input id="authDisplayName" maxlength="50" autocomplete="name" placeholder="怎么称呼你"></label>
+      <label class="auth-field"><span>邮箱</span><input id="authEmail" type="email" autocomplete="email" required placeholder="name@example.com"></label>
+      <label class="auth-field"><span>密码</span><input id="authPassword" type="password" minlength="8" maxlength="128" autocomplete="current-password" required placeholder="至少 8 位"></label>
+      <p class="auth-error" id="authError" hidden></p>
+      <button class="save-button" id="authSubmit" type="submit">登录</button>
+      <small class="auth-privacy">密码使用 Argon2 单向哈希保存，我们无法读取你的原始密码。</small>
     </form>
   </dialog>
 

@@ -1,4 +1,5 @@
 const DEFAULT_API_BASE = 'http://127.0.0.1:8000/api/v1';
+const TOKEN_KEY = 'today-ledger:access-token';
 
 export class ApiError extends Error {
   constructor(message, status = 0) {
@@ -15,6 +16,7 @@ function fromApiTransaction(item) {
     name: item.name,
     category: item.category,
     account: item.account,
+    accountId: item.account_id,
     date: item.occurred_at,
     amount: item.transaction_type === 'income' ? amount : -amount,
     icon: item.icon,
@@ -28,6 +30,7 @@ function toApiTransaction(item) {
     transaction_type: item.amount > 0 ? 'income' : 'expense',
     category: item.category,
     account: item.account,
+    account_id: item.accountId ?? null,
     amount: Math.abs(item.amount).toFixed(2),
     occurred_at: item.date,
     icon: item.icon,
@@ -36,11 +39,17 @@ function toApiTransaction(item) {
 }
 
 export function createLedgerApi(baseUrl = globalThis.LEDGER_API_BASE ?? DEFAULT_API_BASE) {
+  let accessToken = window.localStorage.getItem(TOKEN_KEY);
+
   async function request(path, options = {}) {
     let response;
     try {
       response = await fetch(`${baseUrl}${path}`, {
-        headers: { 'Content-Type': 'application/json', ...options.headers },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+          ...options.headers
+        },
         ...options
       });
     } catch (error) {
@@ -52,6 +61,10 @@ export function createLedgerApi(baseUrl = globalThis.LEDGER_API_BASE ?? DEFAULT_
     if (!response.ok) {
       const body = await response.json().catch(() => null);
       const detail = typeof body?.detail === 'string' ? body.detail : '数据服务请求失败';
+      if (response.status === 401) {
+        accessToken = null;
+        window.localStorage.removeItem(TOKEN_KEY);
+      }
       throw new ApiError(detail, response.status);
     }
     if (response.status === 204) return null;
@@ -59,6 +72,39 @@ export function createLedgerApi(baseUrl = globalThis.LEDGER_API_BASE ?? DEFAULT_
   }
 
   return {
+    hasToken() {
+      return Boolean(accessToken);
+    },
+
+    async register(payload) {
+      const result = await request('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      accessToken = result.access_token;
+      window.localStorage.setItem(TOKEN_KEY, accessToken);
+      return result.user;
+    },
+
+    async login(payload) {
+      const result = await request('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      accessToken = result.access_token;
+      window.localStorage.setItem(TOKEN_KEY, accessToken);
+      return result.user;
+    },
+
+    async me() {
+      return request('/auth/me');
+    },
+
+    logout() {
+      accessToken = null;
+      window.localStorage.removeItem(TOKEN_KEY);
+    },
+
     async health() {
       return request('/health');
     },
@@ -66,6 +112,28 @@ export function createLedgerApi(baseUrl = globalThis.LEDGER_API_BASE ?? DEFAULT_
     async listTransactions(year) {
       const items = await request(`/transactions?year=${year}&limit=500`);
       return items.map(fromApiTransaction);
+    },
+
+    async listAccounts() {
+      return request('/accounts');
+    },
+
+    async createAccount(account) {
+      return request('/accounts', {
+        method: 'POST',
+        body: JSON.stringify(account)
+      });
+    },
+
+    async updateAccount(id, account) {
+      return request(`/accounts/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(account)
+      });
+    },
+
+    async removeAccount(id) {
+      await request(`/accounts/${id}`, { method: 'DELETE' });
     },
 
     async createTransaction(transaction) {

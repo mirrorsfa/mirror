@@ -21,6 +21,20 @@ export function createEntryDialog({ store, showToast }) {
   let transactionType = 'expense';
   let selectedCategory = '餐饮';
 
+  function renderAccounts(selectedId = null, selectedName = null) {
+    const accounts = store.getState().accounts;
+    const localAccounts = ['微信支付', '支付宝', '银行卡', '现金'];
+    accountInput.innerHTML = accounts.length
+      ? accounts.map(account => `<option value="${account.id}">${account.name}</option>`).join('')
+      : localAccounts.map(name => `<option value="local:${name}">${name}</option>`).join('');
+    if (selectedId && accounts.some(account => account.id === selectedId)) {
+      accountInput.value = selectedId;
+    } else if (selectedName) {
+      const matching = accounts.find(account => account.name === selectedName);
+      accountInput.value = matching?.id ?? `local:${selectedName}`;
+    }
+  }
+
   function renderType() {
     typeButtons.forEach(button => {
       button.classList.toggle('active', button.dataset.type === transactionType);
@@ -54,6 +68,7 @@ export function createEntryDialog({ store, showToast }) {
     dialogTitle.textContent = '记下这一笔';
     saveButton.textContent = '保存记录';
     deleteButton.hidden = true;
+    renderAccounts();
     renderType();
     dialog.showModal();
     window.setTimeout(() => amountInput.focus(), 120);
@@ -70,6 +85,7 @@ export function createEntryDialog({ store, showToast }) {
     noteInput.value = transaction.name;
     dateInput.value = transaction.date.slice(0, 10);
     accountInput.value = transaction.account;
+    renderAccounts(transaction.accountId, transaction.account);
     dialogEyebrow.textContent = 'EDIT ENTRY';
     dialogTitle.textContent = '编辑这笔记录';
     saveButton.textContent = '保存修改';
@@ -83,6 +99,9 @@ export function createEntryDialog({ store, showToast }) {
     if (!Number.isFinite(amount) || amount <= 0) return null;
     const isIncome = transactionType === 'income';
     const meta = categoryMeta[selectedCategory];
+    const selectedAccount = store.getState().accounts.find(
+      account => account.id === accountInput.value
+    );
     const now = new Date();
     const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
@@ -91,7 +110,8 @@ export function createEntryDialog({ store, showToast }) {
       color: meta.color,
       name: noteInput.value.trim() || (isIncome ? '一笔新收入' : selectedCategory),
       category: selectedCategory,
-      account: accountInput.value,
+      account: selectedAccount?.name ?? accountInput.value.replace(/^local:/, ''),
+      accountId: selectedAccount?.id ?? null,
       date: `${dateInput.value}T${time}`,
       amount: isIncome ? amount : -amount
     };

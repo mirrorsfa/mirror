@@ -9,6 +9,7 @@ class BudgetUpsert(BaseModel):
 
 
 class BudgetRead(BudgetUpsert):
+    id: str | None = None
     period: str
     updated_at: datetime | None
 

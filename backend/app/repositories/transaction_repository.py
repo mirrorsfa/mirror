@@ -17,6 +17,7 @@ class TransactionRepository:
     def list(
         self,
         *,
+        user_id: str,
         year: int,
         month: int | None = None,
         search: str | None = None,
@@ -30,7 +31,11 @@ class TransactionRepository:
             start, end = period_bounds(year, month)
         statement: Select[tuple[Transaction]] = (
             select(Transaction)
-            .where(Transaction.occurred_at >= start, Transaction.occurred_at < end)
+            .where(
+                Transaction.user_id == user_id,
+                Transaction.occurred_at >= start,
+                Transaction.occurred_at < end,
+            )
             .order_by(Transaction.occurred_at.desc(), Transaction.created_at.desc())
         )
         if search:
@@ -46,11 +51,15 @@ class TransactionRepository:
             )
         return list(self.session.scalars(statement.limit(limit).offset(offset)))
 
-    def get(self, transaction_id: str) -> Transaction | None:
-        return self.session.get(Transaction, transaction_id)
+    def get(self, user_id: str, transaction_id: str) -> Transaction | None:
+        statement = select(Transaction).where(
+            Transaction.id == transaction_id,
+            Transaction.user_id == user_id,
+        )
+        return self.session.scalar(statement)
 
-    def create(self, payload: TransactionCreate) -> Transaction:
-        transaction = Transaction(**payload.model_dump(mode="python"))
+    def create(self, user_id: str, payload: TransactionCreate) -> Transaction:
+        transaction = Transaction(user_id=user_id, **payload.model_dump(mode="python"))
         transaction.transaction_type = payload.transaction_type.value
         self.session.add(transaction)
         self.session.commit()

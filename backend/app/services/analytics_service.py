@@ -19,13 +19,16 @@ DEFAULT_BUDGET = Decimal("10000.00")
 
 
 class AnalyticsService:
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: Session, user_id: str) -> None:
         self.transactions = TransactionRepository(session)
         self.budgets = BudgetRepository(session)
+        self.user_id = user_id
 
     def _month_transactions(self, period: str):
         year, month = parse_period(period)
-        return self.transactions.list(year=year, month=month, limit=10_000)
+        return self.transactions.list(
+            user_id=self.user_id, year=year, month=month, limit=10_000
+        )
 
     def summary(self, period: str) -> SummaryRead:
         items = self._month_transactions(period)
@@ -33,7 +36,7 @@ class AnalyticsService:
         expense_items = [item for item in items if item.transaction_type == "expense"]
         income = sum((item.amount for item in income_items), ZERO)
         expense = sum((item.amount for item in expense_items), ZERO)
-        budget_model = self.budgets.get(period)
+        budget_model = self.budgets.get(self.user_id, period)
         budget = budget_model.amount if budget_model else DEFAULT_BUDGET
 
         return SummaryRead(

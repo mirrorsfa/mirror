@@ -3,11 +3,14 @@ import { createStorage } from './core/storage.js';
 import { createToast } from './core/toast.js';
 import { seedBudgets, seedTransactions } from './data/seed-data.js';
 import { createBudget } from './features/budget.js';
+import { createAuth } from './features/auth.js';
+import { createAccounts } from './features/accounts.js';
 import { createCategoryBreakdown } from './features/category-breakdown.js';
 import { createChart } from './features/chart.js';
 import { createConnectionStatus } from './features/connection-status.js';
 import { createEntryDialog } from './features/entry-dialog.js';
 import { createMonthSelector } from './features/month-selector.js';
+import { createReports } from './features/reports.js';
 import { initNavigation } from './features/navigation.js';
 import { createSummary } from './features/summary.js';
 import { createTransactionList } from './features/transactions.js';
@@ -28,12 +31,15 @@ const showToast = createToast(document.querySelector('#toast'));
 const entryDialog = createEntryDialog({ store, showToast });
 
 const components = [
+  createAuth({ store, showToast }),
+  createAccounts({ store, showToast }),
   createSummary(store),
   createConnectionStatus(),
   createChart(store),
   createCategoryBreakdown(),
   createBudget({ store, showToast }),
   createMonthSelector({ store, showToast }),
+  createReports(),
   createTransactionList({ onEdit: entryDialog.openEdit })
 ];
 
