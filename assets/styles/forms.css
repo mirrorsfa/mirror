@@ -67,12 +67,22 @@
 .amount-field b { font-size: 24px; }
 .amount-field input { width: 100%; padding: 5px 10px 9px; border: 0; outline: 0; color: var(--ink); background: none; font-size: 34px; font-weight: 700; }
 .category-field { margin: 21px 0 0; padding: 0; border: 0; }
-.category-options { margin-top: 10px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }
+.category-options { margin-top: 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); gap: 7px; }
 .category-options button { padding: 9px 3px 7px; display: grid; place-items: center; gap: 4px; border: 1px solid var(--line); border-radius: 11px; background: white; cursor: pointer; font-size: 17px; }
 .category-options button span { font-size: 9px; }
 .category-options button.active { border-color: var(--green); color: var(--green); background: var(--green-soft); }
 .note-field input { width: 100%; margin-top: 7px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 11px; outline: 0; background: white; font-size: 11px; }
 .note-field input:focus { border-color: #a5bbb3; }
-.save-button { width: 100%; height: 46px; margin-top: 22px; }
+.form-row { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.compact-field { display: grid; gap: 7px; color: var(--muted); font-size: 10px; }
+.compact-field input,
+.compact-field select { width: 100%; height: 40px; padding: 0 11px; border: 1px solid var(--line); border-radius: 10px; outline: none; color: var(--ink); background: white; font-size: 11px; }
+.compact-field input:focus,
+.compact-field select:focus { border-color: #a5bbb3; }
+.dialog-actions { margin-top: 22px; display: flex; align-items: center; gap: 10px; }
+.save-button { width: 100%; height: 46px; }
+.delete-button { height: 46px; padding: 0 16px; flex: 0 0 auto; border: 0; border-radius: 12px; color: #bd563f; background: #fae8e2; cursor: pointer; font-size: 11px; font-weight: 600; }
+.budget-dialog { width: min(410px, calc(100vw - 28px)); }
+.budget-dialog .save-button { margin-top: 24px; }
 .toast { position: fixed; left: 50%; bottom: 26px; z-index: 50; padding: 11px 17px; border-radius: 12px; color: white; background: #1e443a; box-shadow: 0 12px 35px rgba(20, 50, 42, .25); font-size: 11px; opacity: 0; pointer-events: none; transform: translate(-50%, 12px); transition: .25s ease; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }

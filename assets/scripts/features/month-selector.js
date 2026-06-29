@@ -1,19 +1,20 @@
-export function initMonthSelector(state, showToast) {
+export function createMonthSelector({ store, showToast }) {
   const monthLabel = document.querySelector('#monthLabel');
 
-  function render() {
+  document.querySelector('#prevMonth').addEventListener('click', () => {
+    store.changeMonth(-1);
+    showToast('已切换到上个月');
+  });
+  document.querySelector('#nextMonth').addEventListener('click', () => {
+    store.changeMonth(1);
+    showToast('已切换到下个月');
+  });
+
+  function render(state) {
     const year = state.selectedMonth.getFullYear();
     const month = state.selectedMonth.getMonth() + 1;
     monthLabel.innerHTML = `${year}年 ${month}月 <span>⌄</span>`;
   }
 
-  function changeMonth(offset) {
-    state.selectedMonth.setMonth(state.selectedMonth.getMonth() + offset);
-    render();
-    showToast('已切换月份（静态演示数据）');
-  }
-
-  document.querySelector('#prevMonth').addEventListener('click', () => changeMonth(-1));
-  document.querySelector('#nextMonth').addEventListener('click', () => changeMonth(1));
-  render();
+  return { render };
 }

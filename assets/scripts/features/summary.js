@@ -1,42 +1,33 @@
 import { formatMoney } from '../core/formatters.js';
+import { getSummary } from '../services/ledger-analytics.js';
 
-export function createSummary({ state, onPrivacyChange }) {
+export function createSummary(store) {
   const toggleButton = document.querySelector('#toggleMoney');
-  const sideBudget = document.querySelector('#sideBudget');
+  const balanceValue = document.querySelector('#balanceValue');
   const incomeValue = document.querySelector('#incomeValue');
   const expenseValue = document.querySelector('#expenseValue');
-  const balanceValue = document.querySelector('#balanceValue');
-  const moneyValues = document.querySelectorAll('.money-value');
-
-  function render() {
-    moneyValues.forEach(node => {
-      node.textContent = state.isMoneyHidden
-        ? '¥ ••••••'
-        : formatMoney(Number(node.dataset.value));
-    });
-    sideBudget.textContent = state.isMoneyHidden ? '¥ ••••••' : '¥ 3,860.00';
-  }
-
-  function applyTransaction(transaction) {
-    const nextIncome = Number(incomeValue.dataset.value)
-      + (transaction.amount > 0 ? transaction.amount : 0);
-    const nextExpense = Number(expenseValue.dataset.value)
-      + (transaction.amount < 0 ? Math.abs(transaction.amount) : 0);
-
-    incomeValue.dataset.value = nextIncome;
-    expenseValue.dataset.value = nextExpense;
-    balanceValue.dataset.value = nextIncome - nextExpense;
-    render();
-  }
+  const incomeHint = document.querySelector('#incomeHint');
+  const expenseHint = document.querySelector('#expenseHint');
+  const activeDays = document.querySelector('#activeDays');
 
   toggleButton.addEventListener('click', () => {
-    state.isMoneyHidden = !state.isMoneyHidden;
-    toggleButton.classList.toggle('hidden', state.isMoneyHidden);
-    toggleButton.setAttribute('aria-label', state.isMoneyHidden ? '显示金额' : '隐藏金额');
-    render();
-    onPrivacyChange();
+    const { isMoneyHidden } = store.getState();
+    store.setMoneyHidden(!isMoneyHidden);
   });
 
-  render();
-  return { applyTransaction };
+  function render(state) {
+    const summary = getSummary(state);
+    const display = value => state.isMoneyHidden ? '¥ ••••••' : formatMoney(value);
+
+    balanceValue.textContent = display(summary.balance);
+    incomeValue.textContent = display(summary.income);
+    expenseValue.textContent = display(summary.expense);
+    incomeHint.textContent = `共 ${summary.incomeCount} 笔收入`;
+    expenseHint.textContent = `日均支出 ${display(summary.averageDailyExpense)}`;
+    activeDays.textContent = `本月已记账 ${summary.activeDays} 天`;
+    toggleButton.classList.toggle('hidden', state.isMoneyHidden);
+    toggleButton.setAttribute('aria-label', state.isMoneyHidden ? '显示金额' : '隐藏金额');
+  }
+
+  return { render };
 }

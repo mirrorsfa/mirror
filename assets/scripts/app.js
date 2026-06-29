@@ -1,32 +1,42 @@
-import { appState } from './core/state.js';
+import { createStorage } from './core/storage.js';
 import { createToast } from './core/toast.js';
-import { transactions } from './data/mock-data.js';
-import { initChart } from './features/chart.js';
-import { initEntryDialog } from './features/entry-dialog.js';
-import { initMonthSelector } from './features/month-selector.js';
+import { seedBudgets, seedTransactions } from './data/seed-data.js';
+import { createBudget } from './features/budget.js';
+import { createCategoryBreakdown } from './features/category-breakdown.js';
+import { createChart } from './features/chart.js';
+import { createEntryDialog } from './features/entry-dialog.js';
+import { createMonthSelector } from './features/month-selector.js';
 import { initNavigation } from './features/navigation.js';
 import { createSummary } from './features/summary.js';
 import { createTransactionList } from './features/transactions.js';
+import { createLedgerStore } from './stores/ledger-store.js';
 
+const storage = createStorage();
+const store = createLedgerStore({
+  storage,
+  seedData: {
+    transactions: seedTransactions,
+    budgets: seedBudgets
+  },
+  initialMonth: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+});
 const showToast = createToast(document.querySelector('#toast'));
-const transactionList = createTransactionList({ transactions, state: appState });
-const summary = createSummary({
-  state: appState,
-  onPrivacyChange: transactionList.render
+const entryDialog = createEntryDialog({ store, showToast });
+
+const components = [
+  createSummary(store),
+  createChart(store),
+  createCategoryBreakdown(),
+  createBudget({ store, showToast }),
+  createMonthSelector({ store, showToast }),
+  createTransactionList({ onEdit: entryDialog.openEdit })
+];
+
+store.subscribe(state => {
+  components.forEach(component => component.render(state));
 });
 
-initChart();
 initNavigation(showToast);
-initMonthSelector(appState, showToast);
-initEntryDialog({
-  state: appState,
-  showToast,
-  onSave(transaction) {
-    transactionList.prepend(transaction);
-    summary.applyTransaction(transaction);
-  }
-});
-
 document.querySelector('#todayText').textContent = new Intl.DateTimeFormat('zh-CN', {
   weekday: 'long',
   month: 'long',

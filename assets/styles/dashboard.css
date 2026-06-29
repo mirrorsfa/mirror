@@ -125,11 +125,13 @@
 .category-list i { width: 7px; height: 7px; border-radius: 50%; background: var(--color); }
 .category-list strong { font-size: 9px; }
 .category-list small { width: 22px; text-align: right; color: var(--muted); font-size: 8px; }
+.category-empty { color: var(--muted); font-size: 10px; line-height: 1.7; }
 
 .transactions-panel { min-height: 334px; }
 .transaction-list { margin-top: 10px; }
-.transaction-item { min-height: 54px; display: grid; grid-template-columns: 38px minmax(90px, 1.2fr) minmax(80px, 1fr) minmax(70px, .8fr) auto; align-items: center; gap: 11px; border-bottom: 1px solid #f0f0eb; }
+.transaction-item { width: 100%; min-height: 54px; padding: 0; display: grid; grid-template-columns: 38px minmax(90px, 1.2fr) minmax(80px, 1fr) minmax(70px, .8fr) auto; align-items: center; gap: 11px; border: 0; border-bottom: 1px solid #f0f0eb; color: inherit; background: transparent; text-align: left; cursor: pointer; transition: background .18s ease; }
 .transaction-item:last-child { border-bottom: 0; }
+.transaction-item:hover { background: #f8f8f3; }
 .transaction-icon { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: var(--icon-bg); font-size: 15px; }
 .transaction-name strong,
 .transaction-name small { display: block; }
@@ -149,8 +151,10 @@
 .budget-numbers b { color: var(--ink); }
 .budget-track { height: 7px; margin-top: 8px; overflow: hidden; border-radius: 10px; background: #edf0eb; }
 .budget-track i { display: block; height: 100%; border-radius: inherit; background: var(--green); }
+.budget-track i.over-budget { background: var(--orange); }
 .budget-main > small { margin-top: 7px; display: block; text-align: right; color: var(--muted); font-size: 8px; }
 .budget-tip { margin-top: 13px; padding: 13px 14px; display: flex; align-items: flex-start; gap: 9px; border-radius: 13px; background: #fff6df; }
 .budget-tip span { width: 24px; height: 24px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 8px; background: #ffe5a2; font-size: 12px; }
 .budget-tip p { margin: 0; color: #8a7440; font-size: 9px; line-height: 1.65; }
 .budget-tip strong { display: block; color: #695429; font-size: 10px; }
+.budget-tip p span { display: inline; width: auto; height: auto; background: none; font-size: inherit; }

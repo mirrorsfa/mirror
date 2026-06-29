@@ -4,7 +4,7 @@ export function formatMoney(value, showSign = false) {
     maximumFractionDigits: 2
   });
 
-  if (!showSign) return `¥ ${absolute}`;
+  if (!showSign) return `${value < 0 ? '- ' : ''}¥ ${absolute}`;
   return `${value >= 0 ? '+' : '-'} ¥ ${absolute}`;
 }
 
