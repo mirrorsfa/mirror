@@ -38,8 +38,11 @@ function toApiTransaction(item) {
   };
 }
 
-export function createLedgerApi(baseUrl = globalThis.LEDGER_API_BASE ?? DEFAULT_API_BASE) {
-  let accessToken = window.localStorage.getItem(TOKEN_KEY);
+export function createLedgerApi(
+  baseUrl = globalThis.LEDGER_API_BASE ?? DEFAULT_API_BASE,
+  tokenKey = TOKEN_KEY
+) {
+  let accessToken = window.localStorage.getItem(tokenKey);
 
   async function request(path, options = {}) {
     let response;
@@ -63,7 +66,7 @@ export function createLedgerApi(baseUrl = globalThis.LEDGER_API_BASE ?? DEFAULT_
       const detail = typeof body?.detail === 'string' ? body.detail : '数据服务请求失败';
       if (response.status === 401) {
         accessToken = null;
-        window.localStorage.removeItem(TOKEN_KEY);
+        window.localStorage.removeItem(tokenKey);
       }
       throw new ApiError(detail, response.status);
     }
@@ -82,7 +85,7 @@ export function createLedgerApi(baseUrl = globalThis.LEDGER_API_BASE ?? DEFAULT_
         body: JSON.stringify(payload)
       });
       accessToken = result.access_token;
-      window.localStorage.setItem(TOKEN_KEY, accessToken);
+      window.localStorage.setItem(tokenKey, accessToken);
       return result.user;
     },
 
@@ -92,7 +95,7 @@ export function createLedgerApi(baseUrl = globalThis.LEDGER_API_BASE ?? DEFAULT_
         body: JSON.stringify(payload)
       });
       accessToken = result.access_token;
-      window.localStorage.setItem(TOKEN_KEY, accessToken);
+      window.localStorage.setItem(tokenKey, accessToken);
       return result.user;
     },
 
@@ -102,7 +105,7 @@ export function createLedgerApi(baseUrl = globalThis.LEDGER_API_BASE ?? DEFAULT_
 
     logout() {
       accessToken = null;
-      window.localStorage.removeItem(TOKEN_KEY);
+      window.localStorage.removeItem(tokenKey);
     },
 
     async health() {
@@ -134,6 +137,21 @@ export function createLedgerApi(baseUrl = globalThis.LEDGER_API_BASE ?? DEFAULT_
 
     async removeAccount(id) {
       await request(`/accounts/${id}`, { method: 'DELETE' });
+    },
+
+    async getAdminSummary() {
+      return request('/admin/summary');
+    },
+
+    async listAdminUsers() {
+      return request('/admin/users');
+    },
+
+    async updateAdminUser(id, changes) {
+      return request(`/admin/users/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(changes)
+      });
     },
 
     async createTransaction(transaction) {

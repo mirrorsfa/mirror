@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.api.routes import accounts, analytics, auth, budgets, health, transactions
+from backend.app.api.routes import accounts, admin, analytics, auth, budgets, health, transactions
 from backend.app.core.config import get_settings
 
 
@@ -21,6 +21,7 @@ def create_app() -> FastAPI:
     )
     application.include_router(health.router, prefix=settings.api_prefix)
     application.include_router(auth.router, prefix=settings.api_prefix)
+    application.include_router(admin.router, prefix=settings.api_prefix)
     application.include_router(accounts.router, prefix=settings.api_prefix)
     application.include_router(transactions.router, prefix=settings.api_prefix)
     application.include_router(budgets.router, prefix=settings.api_prefix)

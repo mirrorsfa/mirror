@@ -169,5 +169,5 @@ export function createEntryDialog({ store, showToast }) {
     if (event.target === dialog) dialog.close();
   });
 
-  return { openEdit };
+  return { openCreate, openEdit };
 }

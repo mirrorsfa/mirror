@@ -17,16 +17,18 @@ python3 -m http.server 8080
 当前版本已包含：
 
 - 流水新增、编辑、删除与服务端持久化
+- 注册、登录、用户数据隔离与安全退出
 - 按月份查看真实收支汇总和流水搜索
-- 由账目实时计算的趋势、分类占比与预算进度
-- 可编辑月度预算与金额隐私开关
+- 独立的全部流水、收支统计、预算管理和账户管理页面
+- 可编辑月度预算、自定义资金账户与金额隐私开关
 - 后端不可用时自动切换到浏览器本地模式
+- 独立管理员后台，可启停用户并管理角色
 - 桌面端、平板与移动端响应式布局
 
 ## 后续规划
 
-- 账户、分类、预算和周期账单管理
-- 登录、用户数据隔离与多设备同步
+- 自定义分类与周期账单管理
+- 多设备同步与令牌刷新
 - 账单导入导出、统计报表与智能消费洞察
 - 提醒、主题设置和隐私保护
 
@@ -34,22 +36,25 @@ python3 -m http.server 8080
 
 ```text
 .
-├── index.html                    # 页面语义结构
-└── assets/
-    ├── styles/
-    │   ├── main.css              # 样式入口
-    │   ├── tokens.css            # 颜色、阴影等设计令牌
-    │   ├── base.css              # 全局基础规则
-    │   ├── layout.css            # 页面布局骨架
-    │   ├── navigation.css        # 桌面与移动导航
-    │   ├── dashboard.css         # 看板与数据组件
-    │   ├── forms.css             # 表单、按钮、弹窗与提示
-    │   └── responsive.css        # 响应式规则
-    └── scripts/
-        ├── app.js                # 应用装配入口
-        ├── core/                 # 状态、格式化和通用反馈
-        ├── data/                 # 静态模拟数据
-        └── features/             # 按业务功能隔离的交互模块
+├── index.html                    # 用户端入口
+├── admin.html                    # 独立管理后台入口
+├── assets/
+│   ├── admin/                    # 管理后台专用样式与交互
+│   ├── styles/                   # 用户端样式、页面与响应式规则
+│   └── scripts/
+│       ├── app.js                # 应用装配入口
+│       ├── api/                  # 后端请求与令牌管理
+│       ├── core/                 # 格式化、存储与通用反馈
+│       ├── data/                 # 静态模拟数据
+│       ├── features/             # 按业务功能隔离的交互模块
+│       └── stores/               # 账本状态与数据源协调
+└── backend/
+    ├── app/api/                  # FastAPI 路由与依赖
+    ├── app/services/             # 业务服务
+    ├── app/repositories/         # 数据访问
+    ├── app/models/               # SQLAlchemy 模型
+    ├── migrations/               # Alembic 数据库迁移
+    └── tests/                    # 后端自动化测试
 ```
 
 开发时遵循单一职责：业务模块不直接管理其他模块的数据，由 `app.js` 通过明确接口进行组合。
@@ -75,6 +80,7 @@ uvicorn backend.app.main:app --reload --port 8000
 - 流水 API：`/api/v1/transactions`
 - 预算 API：`/api/v1/budgets/{YYYY-MM}`
 - 统计 API：`/api/v1/analytics/*`
+- 管理后台：`http://127.0.0.1:8080/admin.html`
 
 运行后端测试：
 
@@ -83,3 +89,9 @@ pytest
 ```
 
 数据库结构变更必须创建 Alembic revision，应用启动过程不会擅自修改数据库表结构。
+
+首次使用管理后台前，通过命令行创建管理员（管理员不能在网页公开注册）：
+
+```bash
+make create-admin EMAIL=admin@example.com PASSWORD='your-secure-password' NAME='管理员'
+```

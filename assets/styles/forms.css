@@ -18,6 +18,7 @@
   white-space: nowrap;
   font-size: 9px;
   font-weight: 600;
+  cursor: pointer;
 }
 .connection-status::before { content: ""; width: 6px; height: 6px; margin-right: 5px; display: inline-block; border-radius: 50%; background: currentColor; }
 .connection-status.online { color: #327361; background: #e0eee8; }
@@ -103,6 +104,8 @@
 .auth-dialog::backdrop { background: rgba(18, 43, 36, .58); backdrop-filter: blur(6px); }
 .auth-dialog form { padding: 30px; }
 .auth-brand { display: flex; align-items: center; gap: 11px; }
+.auth-brand .close-auth-dialog { width: 34px; height: 34px; margin-left: auto; display: grid; place-items: center; border-radius: 50%; background: #f0f1ed; }
+.auth-brand .close-auth-dialog svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; }
 .auth-brand > div { display: grid; gap: 2px; }
 .auth-brand strong { font-size: 15px; }
 .auth-brand small { color: var(--muted); font-size: 9px; }

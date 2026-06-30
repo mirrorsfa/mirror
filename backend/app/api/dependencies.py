@@ -30,7 +30,22 @@ def get_current_user(
             detail="登录已失效，请重新登录",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="账号已被管理员停用",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return user
 
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
+
+
+def get_admin_user(user: CurrentUser) -> User:
+    if not user.is_admin:
+        raise HTTPException(status_code=403, detail="需要管理员权限")
+    return user
+
+
+AdminUser = Annotated[User, Depends(get_admin_user)]

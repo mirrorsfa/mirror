@@ -5,6 +5,7 @@ import { seedBudgets, seedTransactions } from './data/seed-data.js';
 import { createBudget } from './features/budget.js';
 import { createAuth } from './features/auth.js';
 import { createAccounts } from './features/accounts.js';
+import { createAllTransactions } from './features/all-transactions.js';
 import { createCategoryBreakdown } from './features/category-breakdown.js';
 import { createChart } from './features/chart.js';
 import { createConnectionStatus } from './features/connection-status.js';
@@ -33,6 +34,12 @@ const entryDialog = createEntryDialog({ store, showToast });
 const components = [
   createAuth({ store, showToast }),
   createAccounts({ store, showToast }),
+  createAllTransactions({
+    store,
+    onCreate: entryDialog.openCreate,
+    onEdit: entryDialog.openEdit,
+    showToast
+  }),
   createSummary(store),
   createConnectionStatus(),
   createChart(store),

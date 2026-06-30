@@ -8,7 +8,6 @@ export function createTransactionList({ onEdit }) {
   const searchInput = document.querySelector('#searchInput');
   const transactionHint = document.querySelector('#transactionHint');
   const showAllButton = document.querySelector('#showAllTransactions');
-  let showAll = false;
   let currentState;
 
   function getVisibleTransactions(state) {
@@ -17,7 +16,7 @@ export function createTransactionList({ onEdit }) {
       !keyword || [item.name, item.category, item.account]
         .some(value => value.toLowerCase().includes(keyword))
     );
-    return showAll || keyword ? matching : matching.slice(0, 5);
+    return keyword ? matching : matching.slice(0, 5);
   }
 
   function render(state = currentState) {
@@ -26,7 +25,7 @@ export function createTransactionList({ onEdit }) {
     const visibleTransactions = getVisibleTransactions(state);
 
     transactionHint.textContent = `本月共 ${monthTransactions.length} 笔记录`;
-    showAllButton.innerHTML = `${showAll ? '收起' : '查看全部'} <svg><use href="#i-chevron"/></svg>`;
+    showAllButton.innerHTML = '查看全部 <svg><use href="#i-chevron"/></svg>';
     showAllButton.hidden = monthTransactions.length <= 5 && !searchInput.value;
 
     list.innerHTML = visibleTransactions.map(item => `
@@ -56,10 +55,7 @@ export function createTransactionList({ onEdit }) {
   });
 
   searchInput.addEventListener('input', () => render());
-  showAllButton.addEventListener('click', () => {
-    showAll = !showAll;
-    render();
-  });
+  showAllButton.addEventListener('click', () => { window.location.hash = '#transactions-page'; });
 
   return { render };
 }

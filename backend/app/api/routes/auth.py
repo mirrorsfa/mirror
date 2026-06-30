@@ -6,6 +6,7 @@ from backend.app.services.auth_service import (
     AuthService,
     EmailAlreadyExistsError,
     InvalidCredentialsError,
+    UserDisabledError,
 )
 
 
@@ -26,6 +27,8 @@ def login(payload: UserLogin, session: DatabaseSession):
         return AuthService(session).login(payload)
     except InvalidCredentialsError as error:
         raise HTTPException(status_code=401, detail="邮箱或密码不正确") from error
+    except UserDisabledError as error:
+        raise HTTPException(status_code=403, detail="账号已被管理员停用") from error
 
 
 @router.get("/me", response_model=UserRead)

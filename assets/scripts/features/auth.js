@@ -31,10 +31,23 @@ export function createAuth({ store, showToast }) {
       : '数据会安全地保存在你的专属账户中';
     submitButton.textContent = isRegister ? '注册并开始记账' : '登录';
     errorElement.hidden = true;
+    displayNameInput.value = '';
+    emailInput.value = '';
+    passwordInput.value = '';
   }
 
   modeButtons.forEach(button => {
     button.addEventListener('click', () => setMode(button.dataset.authMode));
+  });
+  document.querySelector('.close-auth-dialog').addEventListener('click', () => {
+    dialog.dataset.dismissed = 'true';
+    dialog.close();
+  });
+  document.querySelector('#connectionStatus').addEventListener('click', () => {
+    if (store.getState().dataSource !== 'auth-required') return;
+    delete dialog.dataset.dismissed;
+    setMode('login');
+    dialog.showModal();
   });
 
   form.addEventListener('submit', async event => {
@@ -58,10 +71,6 @@ export function createAuth({ store, showToast }) {
     }
   });
 
-  dialog.addEventListener('cancel', event => {
-    if (store.getState().dataSource === 'auth-required') event.preventDefault();
-  });
-
   logoutButton.addEventListener('click', () => {
     if (!store.getState().user || !window.confirm('确定退出当前账号吗？')) return;
     store.logout();
@@ -80,7 +89,7 @@ export function createAuth({ store, showToast }) {
       profileAvatar.textContent = state.dataSource === 'local' ? '本' : '?';
       logoutButton.hidden = true;
     }
-    if (state.dataSource === 'auth-required' && !dialog.open) {
+    if (state.dataSource === 'auth-required' && !dialog.open && !dialog.dataset.dismissed) {
       setMode('login');
       dialog.showModal();
     }

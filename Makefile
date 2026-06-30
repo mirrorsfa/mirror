@@ -1,4 +1,4 @@
-.PHONY: setup migrate backend frontend test
+.PHONY: setup migrate backend frontend test create-admin
 
 setup:
 	python3 -m venv .venv
@@ -16,3 +16,6 @@ frontend:
 
 test:
 	.venv/bin/pytest
+
+create-admin:
+	.venv/bin/python -m backend.scripts.create_admin --email "$(EMAIL)" --password "$(PASSWORD)" --name "$(NAME)"

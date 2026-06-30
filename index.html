@@ -30,9 +30,9 @@
 
       <nav class="main-nav" aria-label="主要导航">
         <a class="nav-item active" href="#overview" data-page="总览"><svg><use href="#i-home"/></svg><span>总览</span></a>
-        <a class="nav-item" href="#transactions" data-page="全部流水"><svg><use href="#i-receipt"/></svg><span>全部流水</span></a>
+        <a class="nav-item" href="#transactions-page" data-page="全部流水"><svg><use href="#i-receipt"/></svg><span>全部流水</span></a>
         <a class="nav-item" href="#reports" data-page="收支统计"><svg><use href="#i-chart"/></svg><span>收支统计</span></a>
-        <a class="nav-item" href="#budget" data-page="预算管理"><svg><use href="#i-wallet"/></svg><span>预算管理</span></a>
+        <a class="nav-item" href="#budget-page" data-page="预算管理"><svg><use href="#i-wallet"/></svg><span>预算管理</span></a>
         <a class="nav-item" href="#accounts" data-page="我的账户"><svg><use href="#i-card"/></svg><span>我的账户</span></a>
       </nav>
 
@@ -138,7 +138,7 @@
           </div>
         </article>
 
-        <article class="panel transactions-panel" id="transactions">
+        <article class="panel transactions-panel" id="recentTransactions">
           <div class="panel-header">
             <div><h2>最近流水</h2><p id="transactionHint">今天有 4 笔新记录</p></div>
             <button class="text-button" id="showAllTransactions">查看全部 <svg><use href="#i-chevron"/></svg></button>
@@ -147,7 +147,7 @@
           <div class="empty-state" id="emptyState" hidden>没有找到相关账单，换个词试试。</div>
         </article>
 
-        <article class="panel budget-panel" id="budget">
+        <article class="panel budget-panel" id="recentBudget">
           <div class="panel-header">
             <div><h2>预算进度</h2><p>合理安排，花得更安心</p></div>
             <button class="round-button small" id="editBudget" aria-label="预算设置">•••</button>
@@ -162,6 +162,40 @@
         </article>
       </section>
       </div>
+
+      <section class="page-view standalone-page" id="transactions-page" hidden>
+        <div class="page-title-row">
+          <div><p class="eyebrow">TRANSACTIONS</p><h2>全部流水</h2><span id="allTransactionPeriod">本月的每一笔收支记录</span></div>
+          <button class="primary-button" id="addTransactionPage"><svg><use href="#i-plus"/></svg>记一笔</button>
+        </div>
+        <div class="page-toolbar">
+          <div class="toolbar-month"><button id="transactionPrevMonth" aria-label="上个月">‹</button><strong id="transactionMonthLabel">2026年 6月</strong><button id="transactionNextMonth" aria-label="下个月">›</button></div>
+          <label class="toolbar-search"><svg><use href="#i-search"/></svg><input id="allTransactionSearch" placeholder="搜索备注或分类"></label>
+          <select id="transactionTypeFilter" aria-label="收支类型"><option value="all">全部类型</option><option value="expense">支出</option><option value="income">收入</option></select>
+          <select id="transactionAccountFilter" aria-label="账户筛选"><option value="all">全部账户</option></select>
+        </div>
+        <article class="panel full-transactions-panel">
+          <div class="full-transaction-header"><span>账目</span><span>账户</span><span>日期</span><span>金额</span></div>
+          <div id="allTransactionList"></div>
+          <div class="empty-state" id="allTransactionEmpty" hidden>这个月还没有流水。</div>
+        </article>
+      </section>
+
+      <section class="page-view standalone-page" id="budget-page" hidden>
+        <div class="page-title-row">
+          <div><p class="eyebrow">BUDGET</p><h2>预算管理</h2><span id="budgetPagePeriod">规划支出，让每个月更从容</span></div>
+          <button class="primary-button" id="editBudgetPage">设置预算</button>
+        </div>
+        <div class="budget-page-hero">
+          <div><span>月度预算</span><strong id="budgetPageTotal">¥ 0.00</strong><small id="budgetPageStatus">尚未使用预算</small></div>
+          <div class="budget-ring" id="budgetPageRing"><span id="budgetPagePercent">0%</span></div>
+          <div class="budget-page-values"><span>已使用 <b id="budgetPageSpent">¥ 0.00</b></span><span>可使用 <b id="budgetPageRemaining">¥ 0.00</b></span></div>
+        </div>
+        <article class="panel budget-category-panel">
+          <div class="panel-header"><div><h2>分类预算观察</h2><p>根据本月实际支出查看各分类占用</p></div></div>
+          <div class="budget-category-list" id="budgetCategoryList"></div>
+        </article>
+      </section>
 
       <section class="page-view standalone-page" id="reports" hidden>
         <div class="page-title-row">
@@ -200,10 +234,10 @@
 
     <nav class="mobile-nav" aria-label="移动端导航">
       <a class="active" href="#overview"><svg><use href="#i-home"/></svg><span>总览</span></a>
-      <a href="#transactions"><svg><use href="#i-receipt"/></svg><span>流水</span></a>
+      <a href="#transactions-page"><svg><use href="#i-receipt"/></svg><span>流水</span></a>
       <button id="mobileAdd" aria-label="记一笔"><svg><use href="#i-plus"/></svg></button>
       <a href="#reports"><svg><use href="#i-chart"/></svg><span>统计</span></a>
-      <a href="#budget"><svg><use href="#i-wallet"/></svg><span>预算</span></a>
+      <a href="#budget-page"><svg><use href="#i-wallet"/></svg><span>预算</span></a>
     </nav>
   </div>
 
@@ -266,10 +300,11 @@
   </dialog>
 
   <dialog class="auth-dialog" id="authDialog">
-    <form id="authForm">
+    <form id="authForm" autocomplete="off">
       <div class="auth-brand">
         <span class="brand-mark"><span></span><span></span><span></span></span>
         <div><strong>今日记账</strong><small>让每一笔都有归处</small></div>
+        <button class="icon-button close-auth-dialog" type="button" aria-label="关闭登录窗口"><svg><use href="#i-close"/></svg></button>
       </div>
       <div class="auth-heading">
         <span>WELCOME BACK</span>
@@ -281,8 +316,8 @@
         <button type="button" data-auth-mode="register">注册</button>
       </div>
       <label class="auth-field" id="displayNameField" hidden><span>昵称</span><input id="authDisplayName" maxlength="50" autocomplete="name" placeholder="怎么称呼你"></label>
-      <label class="auth-field"><span>邮箱</span><input id="authEmail" type="email" autocomplete="email" required placeholder="name@example.com"></label>
-      <label class="auth-field"><span>密码</span><input id="authPassword" type="password" minlength="8" maxlength="128" autocomplete="current-password" required placeholder="至少 8 位"></label>
+      <label class="auth-field"><span>邮箱</span><input id="authEmail" type="email" autocomplete="off" required placeholder="name@example.com" value=""></label>
+      <label class="auth-field"><span>密码</span><input id="authPassword" type="password" minlength="8" maxlength="128" autocomplete="off" required placeholder="至少 8 位" value=""></label>
       <p class="auth-error" id="authError" hidden></p>
       <button class="save-button" id="authSubmit" type="submit">登录</button>
       <small class="auth-privacy">密码使用 Argon2 单向哈希保存，我们无法读取你的原始密码。</small>

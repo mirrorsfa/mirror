@@ -20,6 +20,10 @@ class InvalidCredentialsError(ValueError):
     pass
 
 
+class UserDisabledError(ValueError):
+    pass
+
+
 DEFAULT_ACCOUNTS = [
     AccountCreate(name="微信支付", account_type=AccountType.WECHAT, color="#63a785"),
     AccountCreate(name="支付宝", account_type=AccountType.ALIPAY, color="#5b9bd5"),
@@ -56,6 +60,8 @@ class AuthService:
         user = self.users.get_by_email(str(payload.email))
         if user is None or not verify_password(payload.password, user.password_hash):
             raise InvalidCredentialsError
+        if not user.is_active:
+            raise UserDisabledError
         return self._token_for(user)
 
     @staticmethod
